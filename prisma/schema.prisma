@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum PostType {
+  TEXT
+  IMAGE
+  VIDEO
+  MIXED
+}
+
+model User {
+  id             String      @id @default(uuid())
+  name           String
+  email          String     @unique
+  phone          String?
+  age            Int?
+  gender         Gender?
+  profilePicture String?
+  status         String?
+  role           Role       @default(USER)
+  password       String
+  bloodGroup     String?
+  bio            String?
+  education      String?
+  experience     String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  connections    Connection[] @relation("UserConnections")
+  connectedBy    Connection[] @relation("ConnectedToUser")
+  posts          Post[]
+  likes          Like[]
+  comments       Comment[]
+  messagesSent   Message[]    @relation("sender")
+  messagesReceived Message[]  @relation("receiver")
+  chats          ChatUser[]
+}
+
+model Connection {
+  id          String   @id @default(uuid())
+  userId      String
+  connectedUserId String
+  status      String   @default("pending") // pending, accepted, rejected
+  createdAt   DateTime @default(now())
+
+  user        User     @relation("UserConnections", fields: [userId], references: [id])
+  connectedUser User   @relation("ConnectedToUser", fields: [connectedUserId], references: [id])
+}
+
+model Post {
+  id          String   @id @default(uuid())
+  content     String?
+  mediaUrl    String?
+  type        PostType
+  reachLimit  Int      @default(5)
+  reachCount  Int      @default(0)
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author      User     @relation(fields: [authorId], references: [id])
+  likes       Like[]
+  comments    Comment[]
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+}
+
+model Chat {
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  users     ChatUser[]
+  messages  Message[]
+}
+
+model ChatUser {
+  id        String   @id @default(uuid())
+  userId    String
+  chatId    String
+
+  user      User     @relation(fields: [userId], references: [id])
+  chat      Chat     @relation(fields: [chatId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  chatId    String
+  senderId  String
+  receiverId String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  sender    User     @relation("sender", fields: [senderId], references: [id])
+  receiver  User     @relation("receiver", fields: [receiverId], references: [id])
+}
