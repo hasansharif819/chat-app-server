@@ -9,6 +9,9 @@ import { PostModule } from './post/post.module';
 import { ChatModule } from './chat/chat.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ChatGateway } from './events/events.gateway';
+import { Server } from 'socket.io';
+import { SocketService } from './socket/socket.service';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -18,6 +21,7 @@ import { ChatGateway } from './events/events.gateway';
     UserModule,
     PostModule,
     ChatModule,
+    SocketModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
@@ -25,6 +29,8 @@ import { ChatGateway } from './events/events.gateway';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, ChatGateway],
+  providers: [AppService, ChatGateway, SocketService],
+  exports: [SocketService],
 })
+
 export class AppModule {}

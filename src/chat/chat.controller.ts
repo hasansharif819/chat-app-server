@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards, Post, Body, Req } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { GetUser } from '../auth/get-user.decorator';
@@ -15,6 +15,7 @@ export class ChatController {
     @GetUser() user: User,
     @Body() dto: SendMessageDto
   ) {
+    // console.log("Chats/create === ", user)
     return this.chatService.sendMessage(user.id, dto.receiverId, dto.content);
   }
 
@@ -28,9 +29,17 @@ export class ChatController {
     return this.chatService.getOrCreateChat(user.id, userId);
   }
 
+  // @Get(':chatId/messages')
+  // async getMessages(@Param('chatId') chatId: string) {
+  //   return this.chatService.getMessages(chatId);
+  // }
+
   @Get(':chatId/messages')
-  async getMessages(@Param('chatId') chatId: string) {
-    return this.chatService.getMessages(chatId);
+  async getMessages(
+    @Param('chatId') chatId: string,
+    @Req() req, // Add request object to access user
+  ) {
+    return this.chatService.getMessages(chatId, req.user.id);
   }
 
   @Post(':chatId/read')

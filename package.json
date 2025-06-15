@@ -35,6 +35,7 @@
     "dotenv": "^16.5.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "react-toastify": "^11.0.5",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
@@ -86,5 +87,9 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.9",
+    "utf-8-validate": "^6.0.5"
   }
 }
